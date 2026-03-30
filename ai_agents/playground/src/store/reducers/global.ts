@@ -162,6 +162,7 @@ export const globalSlice = createSlice({
     },
     setGraphList: (state, action: PayloadAction<Graph[]>) => {
       state.graphList = action.payload;
+      console.log("[TEN Redux] Updated graphList:", action.payload);
     },
     setVoiceType: (state, action: PayloadAction<VoiceType>) => {
       state.voiceType = action.payload;
@@ -222,8 +223,19 @@ let fetchGraphDetails: any;
 initializeGraphData = createAsyncThunk(
   "global/initializeGraphData",
   async (_, { dispatch }) => {
-    const fetchedGraphs = await apiFetchGraphs();
-    dispatch(setGraphList(fetchedGraphs.map((graph) => graph)));
+    try {
+      console.log("[TEN] Fetching graphs from API...");
+      const fetchedGraphs = await apiFetchGraphs();
+      console.log("[TEN] Fetched graphs:", fetchedGraphs);
+      dispatch(setGraphList(fetchedGraphs.map((graph) => graph)));
+      if (fetchedGraphs.length > 0) {
+        dispatch(setSelectedGraphId(fetchedGraphs[0].graph_id));
+        console.log("[TEN] Set initial graph to:", fetchedGraphs[0].graph_id);
+      }
+    } catch (error) {
+      console.error("[TEN] Failed to fetch graphs:", error);
+      throw error;
+    }
   }
 );
 fetchGraphDetails = createAsyncThunk(

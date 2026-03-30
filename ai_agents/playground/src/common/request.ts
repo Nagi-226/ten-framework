@@ -130,24 +130,48 @@ export const apiCheckCompatibleMessages = async (payload: {
 };
 
 export const apiFetchGraphs = async (): Promise<Graph[]> => {
-  if (isEditModeOn) {
-    const resp: any = await axios.post(`/api/dev/v1/graphs`, {});
-    return resp.data.data.map((graph: any) => ({
-      name: graph.name,
-      graph_id: graph.graph_id,
-      autoStart: graph.auto_start,
-      nodes: [],
-      connections: [],
-    }));
-  } else {
-    const resp: any = await axios.get(`/api/agents/graphs`);
-    return resp.data.data.map((graph: any) => ({
-      name: graph.name,
-      graph_id: graph.graph_id,
-      autoStart: graph.auto_start,
-      nodes: [],
-      connections: [],
-    }));
+  try {
+    if (isEditModeOn) {
+      const resp: any = await axios.post(`/api/dev/v1/graphs`, {});
+      return resp.data.data.map((graph: any) => ({
+        name: graph.name,
+        graph_id: graph.graph_id,
+        autoStart: graph.auto_start,
+        nodes: [],
+        connections: [],
+      }));
+    } else {
+      // Try direct fetch first to bypass axios issues
+      console.log("[apiFetchGraphs] Attempting direct fetch to /api/agents/graphs");
+      const response = await fetch(`/api/agents/graphs`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        console.error(`[apiFetchGraphs] HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("[apiFetchGraphs] Successfully fetched graphs:", data);
+      
+      if (data.data && Array.isArray(data.data)) {
+        return data.data.map((graph: any) => ({
+          name: graph.name,
+          graph_id: graph.graph_id,
+          autoStart: graph.auto_start,
+          nodes: [],
+          connections: [],
+        }));
+      }
+      return [];
+    }
+  } catch (error: any) {
+    console.error("[apiFetchGraphs] Error:", error);
+    throw error;
   }
 };
 

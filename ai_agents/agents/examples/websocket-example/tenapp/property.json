@@ -35,16 +35,16 @@
             {
               "type": "extension",
               "name": "llm",
-              "addon": "openai_llm2_python",
-              "extension_group": "chatgpt",
+              "addon": "deepseek_llm_python",
+              "extension_group": "deepseek",
               "property": {
-                "base_url": "https://api.openai.com/v1",
-                "api_key": "${env:OPENAI_API_KEY}",
+                "base_url": "https://api.deepseek.com/v1",
+                "api_key": "${env:DEEPSEEK_API_KEY}",
                 "frequency_penalty": 0.9,
-                "model": "${env:OPENAI_MODEL}",
+                "model": "deepseek-chat",
                 "max_tokens": 512,
                 "prompt": "",
-                "proxy_url": "${env:OPENAI_PROXY_URL|}",
+                "proxy_url": "",
                 "greeting": "TEN Agent connected. How can I help you today?",
                 "max_memory_length": 10
               }
